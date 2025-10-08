@@ -1,0 +1,54 @@
+name: Workflow Snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Selecione a branch para build e teste'
+        required: true
+        type: string
+        default: 'develop'
+      run_sonar:
+        description: 'Executar análise do Sonar'
+        type: boolean
+        default: false
+
+jobs:
+  build-test-feature:
+    name: Build e Teste da Feature
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          # O fetch-depth: 0 é recomendado para o SonarCloud analisar o histórico completo da branch.
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build e Testes com Maven
+        run: mvn -B clean verify
+
+      - name: Análise com SonarCloud
+        if: success() && github.event.inputs.run_sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn -B sonar:sonar \
+            -Dsonar.projectKey=fessrodrigues_${{ github.event.repository.name }} \
+            -Dsonar.organization=fessrodrigues \
+            -Dsonar.host.url=https://sonarcloud.io

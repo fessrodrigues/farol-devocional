@@ -1,0 +1,19 @@
+name: Deploy Homologação
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy-homologacao:
+    name: Deploy para Homologação
+    runs-on: ubuntu-latest
+    environment:
+      name: homologacao
+      url: https://farol-devocional-api-hom.onrender.com
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Acionar Deploy Hook em Homologação
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL_HOM }}
