@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<sonar.organization>fessrodrigues</sonar.organization>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -90,6 +91,19 @@
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
 				<version>4.8.5.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.3.1</version> <configuration>
+					<configLocation>checkstyle.xml</configLocation> </configuration>
 				<executions>
 					<execution>
 						<goals>
